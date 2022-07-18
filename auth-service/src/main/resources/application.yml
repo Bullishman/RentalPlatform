@@ -1,0 +1,61 @@
+server:
+  port: ${port:7000}
+
+spring:
+  application:
+    name: auth-service
+
+  zipkin:
+    base-url: http://127.0.0.1:9411
+    enabled: true
+
+  sleuth:
+    sampler:
+      probability: 1.0
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+
+  jpa:
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      # init create
+#      ddl-auto: create
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+
+# 보안상 문제가 발생할수있기 때문에 local폴더 > auth-service.yml 파일에 datasource정보를 저장
+#  datasource:
+#    url: "jdbc:mariadb://localhost:port입력/database입력?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC"
+#    username: username입력
+#    password: password입력
+#    driver-class-name: org.mariadb.jdbc.Driver
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+logging:
+  level:
+    com.microservices.authservice.client: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, busrefresh
+
+token:
+  exp_time: 43200000
+  secret: user_token

@@ -1,0 +1,119 @@
+spring:
+  application:
+    name: apigateway-service
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+
+        - id: auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/register
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+
+        - id: auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/logout
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+
+        - id: auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/info/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+
+        - id: auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/check/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+
+        - id: auth
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/actuator/**
+            - Method=GET, POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+
+        - id: post
+          uri: lb://POST-SERVICE
+          predicates:
+            - Path=/post-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/post-service/(?<segment>.*), /$\{segment}
+
+        - id: rental
+          uri: lb://RENTAL-SERVICE
+          predicates:
+            - Path=/rental-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/rental-service/(?<segment>.*), /$\{segment}
+
+        - id: message
+          uri: lb://MESSAGE-SERVICE
+          predicates:
+            - Path=/message-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/message-service/(?<segment>.*), /$\{segment}
+
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
+
+server:
+  port: ${port:8900}
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, httptrace, busrefresh
+
+token:
+  exp_time: 43200000
+  secret: user_token
+
